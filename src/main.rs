@@ -4,6 +4,8 @@
 extern crate serde;
 
 #[cfg(test)] mod tests;
+mod data_source;
+mod weather_data;
 
 const INDEX: &'static str = "Hello, World\n";
 

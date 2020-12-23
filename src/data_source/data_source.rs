@@ -1,3 +1,5 @@
+use crate::weather_data::WeatherData;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 /// This trait describes a weather data source, such as [OpenWeatherMap](https://openweathermap.org)
@@ -7,7 +9,7 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// handle it, and return in the correct format.
 ///
 /// In case a new data source should be added, it must implement this trait.
-trait DataSource {
+pub trait DataSource {
     /// Forecast for the current day.
     fn forecast_today(&self) -> Result<WeatherData>;
 
@@ -15,5 +17,5 @@ trait DataSource {
     fn forecast_tomorrow(&self) -> Result<WeatherData>;
 
     /// Forecast for the next 5 days.
-    fn forecast_5_days(&self) -> Result<[WeatherData, 5]>;
+    fn forecast_5_days(&self) -> Result<[WeatherData; 5]>;
 }
