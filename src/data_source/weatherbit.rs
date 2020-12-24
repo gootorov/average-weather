@@ -1,5 +1,4 @@
 use std::env;
-use std::env::VarError;
 use std::error::Error;
 use serde::Deserialize;
 use crate::data_source::DataSource;
@@ -11,12 +10,12 @@ pub struct WeatherBit {
 }
 
 impl WeatherBit {
-    pub fn from_envvar() -> Result<Self, VarError> {
-        let api_key = env::var("WEATHERBIT_KEY")?;
+    pub fn from_envvar() -> Self {
+        let api_key = env::var("WEATHERBIT_KEY").unwrap_or("".to_string());
 
-        Ok(Self {
+        Self {
             api_key: api_key
-        })
+        }
     }
 }
 

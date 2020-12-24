@@ -12,15 +12,3 @@ fn test_index() {
     assert_eq!(response.status(), Status::Ok);
     assert_eq!(response.body_string(), Some(INDEX.into()));
 }
-
-#[test]
-fn test_weatherbit_api_key_present() {
-    let api_key = env::var("WEATHERBIT_KEY");
-    assert!(api_key.is_ok());
-}
-
-#[test]
-fn test_weatherbit_from_envvar() {
-    let weatherbit = WeatherBit::from_envvar();
-    assert!(weatherbit.is_ok());
-}
