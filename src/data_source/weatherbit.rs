@@ -1,6 +1,6 @@
 use std::env;
-use std::error::Error;
 use serde::Deserialize;
+use crate::api_error::{ApiError, ErrorKind};
 use crate::data_source::DataSource;
 use crate::weather_data::WeatherData;
 use log;
@@ -24,7 +24,7 @@ impl DataSource for WeatherBit {
         &self,
         location: String,
         days: u32
-    ) -> Result<Vec<WeatherData>, Box<dyn Error>> {
+    ) -> Result<Vec<WeatherData>, ApiError> {
         let url = format!(
             "https://api.weatherbit.io/v2.0/forecast/daily?city={}&days={}&key={}",
             location,
@@ -32,9 +32,19 @@ impl DataSource for WeatherBit {
             self.api_key
         );
 
-        let raw_data = reqwest::blocking::get(&url)?
-            .json::<WeatherBitResponse>()?
-            .data;
+        let response = match reqwest::blocking::get(&url) {
+            // weatherbit returns status code 204 if the location is invalid.
+            Ok(response) if response.status().as_u16() == 204 =>
+                return Err(ApiError::new("WeatherBit", ErrorKind::InvalidLocation)),
+
+            Ok(response) => response,
+            Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::FailedConnection))
+        };
+
+        let raw_data = match response.json::<WeatherBitResponse>() {
+            Ok(json) => json.data,
+            Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::InvalidJSON))
+        };
 
         log::debug!("{:#?}", raw_data);
 
@@ -43,18 +53,17 @@ impl DataSource for WeatherBit {
             .collect::<Vec<_>>())
     }
 
-    fn forecast_today(&self, location: String) -> Result<WeatherData, Box<dyn Error>> {
-        // kinda ugly, but perhaphs the only way to move it out of the vector.
-        Ok(self.forecast_n_days(location, 1)?.into_iter().nth(0).ok_or("No data")?)
+    fn forecast_today(&self, location: String) -> Result<Vec<WeatherData>, ApiError> {
+        Ok(self.forecast_n_days(location, 1)?)
     }
 
-    fn forecast_tomorrow(&self, location: String) -> Result<WeatherData, Box<dyn Error>> {
+    fn forecast_tomorrow(&self, location: String) -> Result<Vec<WeatherData>, ApiError> {
         // to get the forecast for tomorrow, we request it for two days (today, tomorrow)
         // and skip the first day.
-        Ok(self.forecast_n_days(location, 2)?.into_iter().nth(1).ok_or("No Data")?)
+        Ok(self.forecast_n_days(location, 2)?.drain(1..).collect())
     }
 
-    fn forecast_5_days(&self, location: String) -> Result<Vec<WeatherData>, Box<dyn Error>> {
+    fn forecast_5_days(&self, location: String) -> Result<Vec<WeatherData>, ApiError> {
         Ok(self.forecast_n_days(location, 5)?)
     }
 }
