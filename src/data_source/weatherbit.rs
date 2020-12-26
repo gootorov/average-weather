@@ -3,7 +3,6 @@ use serde::Deserialize;
 use crate::api_error::{ApiError, ErrorKind};
 use crate::data_source::DataSource;
 use crate::weather_data::WeatherData;
-use log;
 
 pub struct WeatherBit {
     api_key: String
@@ -11,10 +10,10 @@ pub struct WeatherBit {
 
 impl WeatherBit {
     pub fn from_envvar() -> Self {
-        let api_key = env::var("WEATHERBIT_KEY").unwrap_or("".to_string());
+        let api_key = env::var("WEATHERBIT_KEY").unwrap_or_default();
 
         Self {
-            api_key: api_key
+            api_key
         }
     }
 }
@@ -22,7 +21,7 @@ impl WeatherBit {
 impl DataSource for WeatherBit {
     fn forecast_n_days(
         &self,
-        location: String,
+        location: &str,
         days: u32
     ) -> Result<Vec<WeatherData>, ApiError> {
         let url = format!(
@@ -53,17 +52,17 @@ impl DataSource for WeatherBit {
             .collect::<Vec<_>>())
     }
 
-    fn forecast_today(&self, location: String) -> Result<Vec<WeatherData>, ApiError> {
+    fn forecast_today(&self, location: &str) -> Result<Vec<WeatherData>, ApiError> {
         Ok(self.forecast_n_days(location, 1)?)
     }
 
-    fn forecast_tomorrow(&self, location: String) -> Result<Vec<WeatherData>, ApiError> {
+    fn forecast_tomorrow(&self, location: &str) -> Result<Vec<WeatherData>, ApiError> {
         // to get the forecast for tomorrow, we request it for two days (today, tomorrow)
         // and skip the first day.
         Ok(self.forecast_n_days(location, 2)?.drain(1..).collect())
     }
 
-    fn forecast_5_days(&self, location: String) -> Result<Vec<WeatherData>, ApiError> {
+    fn forecast_5_days(&self, location: &str) -> Result<Vec<WeatherData>, ApiError> {
         Ok(self.forecast_n_days(location, 5)?)
     }
 }

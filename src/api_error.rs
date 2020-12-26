@@ -27,8 +27,8 @@ pub enum ErrorKind {
 impl ApiError {
     pub fn new(origin: &'static str, kind: ErrorKind) -> Self {
         Self {
-            origin: origin,
-            kind: kind
+            origin,
+            kind
         }
     }
 }
@@ -49,8 +49,6 @@ impl Serialize for ErrorKind {
     where
         S: Serializer,
     {
-        match &*self {
-            error => serializer.serialize_str(&*error.to_string()),
-        }
+        serializer.serialize_str(&*self.to_string())
     }
 }
