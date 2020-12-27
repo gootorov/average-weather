@@ -1,20 +1,18 @@
-use std::env;
-use serde::Deserialize;
 use crate::api_error::{ApiError, ErrorKind};
 use crate::data_source::DataSource;
 use crate::weather_data::WeatherData;
+use serde::Deserialize;
+use std::env;
 
 pub struct WeatherBit {
-    api_key: String
+    api_key: String,
 }
 
 impl WeatherBit {
     pub fn from_envvar() -> Self {
         let api_key = env::var("WEATHERBIT_KEY").unwrap_or_default();
 
-        Self {
-            api_key
-        }
+        Self { api_key }
     }
 }
 
@@ -33,21 +31,22 @@ impl DataSource for WeatherBit {
 
         let response = match reqwest::blocking::get(&url) {
             // weatherbit returns status code 204 if the location is invalid.
-            Ok(response) if response.status().as_u16() == 204 =>
-                return Err(ApiError::new("WeatherBit", ErrorKind::InvalidLocation)),
-
+            Ok(response) if response.status().as_u16() == 204 => {
+                return Err(ApiError::new("WeatherBit", ErrorKind::InvalidLocation))
+            },
             Ok(response) => response,
-            Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::FailedConnection))
+            Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::FailedConnection)),
         };
 
         let raw_data = match response.json::<WeatherBitResponse>() {
             Ok(json) => json.data,
-            Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::InvalidJSON))
+            Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::InvalidJSON)),
         };
 
         log::debug!("{:#?}", raw_data);
 
-        Ok(raw_data.iter()
+        Ok(raw_data
+            .iter()
             .map(|day| WeatherData::new(day.temp))
             .collect::<Vec<_>>())
     }
@@ -73,7 +72,7 @@ impl DataSource for WeatherBit {
 /// We need only the data field.
 #[derive(Debug, Deserialize)]
 struct WeatherBitResponse {
-    data: Vec<WeatherBitData>
+    data: Vec<WeatherBitData>,
 }
 
 /// In the data field of WeatherBit's response,
@@ -82,5 +81,5 @@ struct WeatherBitResponse {
 struct WeatherBitData {
     // keep the date for debug purposes.
     valid_date: String,
-    temp: f64
+    temp: f64,
 }

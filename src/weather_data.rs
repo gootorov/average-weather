@@ -4,14 +4,12 @@ use serde::Serialize;
 /// Contains the data that it is forecasted for as well as the temperature.
 #[derive(Debug, Serialize)]
 pub struct WeatherData {
-    temperature: f64
+    temperature: f64,
 }
 
 impl WeatherData {
     pub fn new(temperature: f64) -> Self {
-        Self {
-            temperature
-        }
+        Self { temperature }
     }
 }
 
@@ -19,7 +17,7 @@ impl std::ops::Add for WeatherData {
     type Output = Self;
     fn add(self, other: Self) -> Self {
         Self {
-            temperature: self.temperature + other.temperature
+            temperature: self.temperature + other.temperature,
         }
     }
 }
@@ -28,7 +26,7 @@ impl std::ops::Div<f64> for WeatherData {
     type Output = Self;
     fn div(self, other: f64) -> Self {
         Self {
-            temperature: self.temperature / other
+            temperature: self.temperature / other,
         }
     }
 }

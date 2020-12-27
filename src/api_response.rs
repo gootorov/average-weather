@@ -1,6 +1,6 @@
-use serde::Serialize;
-use crate::weather_data::WeatherData;
 use crate::api_error::ApiError;
+use crate::weather_data::WeatherData;
+use serde::Serialize;
 
 /// Api Response.
 /// Contains a response status, data, and possible errors.
@@ -8,8 +8,7 @@ use crate::api_error::ApiError;
 pub struct ApiResponse {
     status: Status,
     data: Vec<WeatherData>,
-    errors: Vec<ApiError>
-
+    errors: Vec<ApiError>,
 }
 
 /// Api Response Status.
@@ -20,7 +19,7 @@ pub enum Status {
     Success,
     /// Fail is returned if none of the data sources returned a weather forecast.
     #[serde(rename = "fail")]
-    Fail
+    Fail,
 }
 
 impl ApiResponse {
@@ -28,7 +27,7 @@ impl ApiResponse {
         Self {
             status,
             data,
-            errors
+            errors,
         }
     }
 }

@@ -1,17 +1,18 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[cfg(test)] mod tests;
 mod api_error;
 mod api_response;
 mod data_source;
+#[cfg(test)]
+mod tests;
 mod weather_data;
 
 use api_error::ApiError;
 use api_response::{ApiResponse, Status};
+use data_source::{DataSource, WeatherBit};
+use itertools::{Either, Itertools};
 use rocket::{get, routes, State};
 use rocket_contrib::json::Json;
-use data_source::{DataSource, WeatherBit};
-use itertools::{Itertools, Either};
 use weather_data::WeatherData;
 
 const INDEX: &str = "Hello, World\n";

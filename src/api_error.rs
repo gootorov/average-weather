@@ -1,5 +1,5 @@
+use serde::{Serialize, Serializer};
 use std::fmt;
-use serde::{Serializer, Serialize};
 
 /// Api Error type.
 #[derive(Serialize)]
@@ -7,7 +7,7 @@ pub struct ApiError {
     /// Indicates the origin of the error, e.g. OpenWeatherMap, WeatherBit, etc.
     origin: &'static str,
     /// Indicates the type of the error.
-    kind: ErrorKind
+    kind: ErrorKind,
 }
 
 /// Error variants.
@@ -21,15 +21,12 @@ pub enum ErrorKind {
     /// The error if we were not able to connect to the data source.
     FailedConnection,
     /// The error if we were not able to parse the returned JSON.
-    InvalidJSON
+    InvalidJSON,
 }
 
 impl ApiError {
     pub fn new(origin: &'static str, kind: ErrorKind) -> Self {
-        Self {
-            origin,
-            kind
-        }
+        Self { origin, kind }
     }
 }
 

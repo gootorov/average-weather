@@ -1,9 +1,9 @@
-use std::env;
-use super::INDEX;
 use super::rocket;
-use rocket::local::Client;
-use rocket::http::Status;
+use super::INDEX;
 use crate::data_source::weatherbit::WeatherBit;
+use rocket::http::Status;
+use rocket::local::Client;
+use std::env;
 
 #[test]
 fn test_index() {
