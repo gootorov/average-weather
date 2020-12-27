@@ -2,7 +2,7 @@ use serde::{Serialize, Serializer};
 use std::fmt;
 
 /// Api Error type.
-#[derive(Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ApiError {
     /// Indicates the origin of the error, e.g. OpenWeatherMap, WeatherBit, etc.
     origin: &'static str,
@@ -11,6 +11,7 @@ pub struct ApiError {
 }
 
 /// Error variants.
+#[derive(Debug, Clone, PartialEq)]
 pub enum ErrorKind {
     /// The error if the data source was not able to provide
     /// weather forecast for the given location.
