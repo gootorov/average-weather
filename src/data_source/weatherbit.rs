@@ -50,20 +50,6 @@ impl DataSource for WeatherBit {
             .map(|day| WeatherData::new(day.temp))
             .collect::<Vec<_>>())
     }
-
-    fn forecast_today(&self, location: &str) -> Result<Vec<WeatherData>, ApiError> {
-        Ok(self.forecast_n_days(location, 1)?)
-    }
-
-    fn forecast_tomorrow(&self, location: &str) -> Result<Vec<WeatherData>, ApiError> {
-        // to get the forecast for tomorrow, we request it for two days (today, tomorrow)
-        // and skip the first day.
-        Ok(self.forecast_n_days(location, 2)?.drain(1..).collect())
-    }
-
-    fn forecast_5_days(&self, location: &str) -> Result<Vec<WeatherData>, ApiError> {
-        Ok(self.forecast_n_days(location, 5)?)
-    }
 }
 
 // Intermediate types that we use to map WeatherBit's responses to.
