@@ -22,19 +22,23 @@ fn get_data_sources() -> DataSources {
     [Box::new(WeatherBit::from_envvar())]
 }
 
-fn compute_average_data<T>(responses: T) -> Json<ApiResponse>
-    where T: Iterator<Item = Result<Vec<WeatherData>, ApiError>>
+/// Partition a sequence of responses from data sources
+/// into two parts: a vector of responses from each data source
+/// and a vector of failures.
+fn partition_data<T>(responses: T) -> (Vec<Vec<WeatherData>>, Vec<ApiError>)
+where
+    T: Iterator<Item = Result<Vec<WeatherData>, ApiError>>,
 {
-    // this is very flexible, as it allows to add/remove/change
-    // data sources arbitrarily at the cost of a bit
-    // of code complexity, and i'm not sure if it is worth it.
-    let (data, errors): (Vec<_>, Vec<_>) = responses
-        .into_iter()
+    let (data, errors) = responses
         .partition_map(|r| match r {
             Ok(data) => Either::Left(data),
             Err(e) => Either::Right(e)
         });
 
+    (data, errors)
+}
+
+fn compute_average_data(data: Vec<Vec<WeatherData>>) -> Vec<WeatherData> {
     // sum up data from multiple sources.
     let n_sources = data.len();
     let summed_data = data
@@ -53,28 +57,58 @@ fn compute_average_data<T>(responses: T) -> Json<ApiResponse>
                 .collect()
         });
 
-    match average_data {
-        Some(data) => Json(ApiResponse::new(Status::Success, data, errors)),
-        None => Json(ApiResponse::new(Status::Fail, vec![], errors))
-    }
+    average_data.unwrap_or_default()
 }
 
+// FIXME: too much boilerplate: three methods differ by one call.
 #[get("/forecast/today/<location>")]
 fn forecast_today(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
     let responses = sources.iter().map(|source| source.forecast_today(&location));
-    compute_average_data(responses)
+
+    let (data, errors) = partition_data(responses);
+
+    let average_data = compute_average_data(data);
+
+    // not sure if status should just be bool,
+    // it's unlikely that Status::Error will be useful.
+    let status = match average_data.len() == 0 {
+        true => Status::Fail,
+        false => Status::Success,
+    };
+
+    Json(ApiResponse::new(status, average_data, errors))
 }
 
 #[get("/forecast/tomorrow/<location>")]
 fn forecast_tomorrow(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
     let responses = sources.iter().map(|source| source.forecast_tomorrow(&location));
-    compute_average_data(responses)
+
+    let (data, errors) = partition_data(responses);
+
+    let average_data = compute_average_data(data);
+
+    let status = match average_data.len() == 0 {
+        true => Status::Fail,
+        false => Status::Success,
+    };
+
+    Json(ApiResponse::new(status, average_data, errors))
 }
 
 #[get("/forecast/five-days/<location>")]
 fn forecast_5_days(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
     let responses = sources.iter().map(|source| source.forecast_5_days(&location));
-    compute_average_data(responses)
+
+    let (data, errors) = partition_data(responses);
+
+    let average_data = compute_average_data(data);
+
+    let status = match average_data.len() == 0 {
+        true => Status::Fail,
+        false => Status::Success,
+    };
+
+    Json(ApiResponse::new(status, average_data, errors))
 }
 
 #[get("/")]
