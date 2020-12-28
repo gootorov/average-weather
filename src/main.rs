@@ -60,11 +60,10 @@ fn compute_average_data(data: Vec<Vec<WeatherData>>) -> Vec<WeatherData> {
     average_data.unwrap_or_default()
 }
 
-// FIXME: too much boilerplate: three methods differ by one call.
-#[get("/forecast/today/<location>")]
-fn forecast_today(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
-    let responses = sources.iter().map(|source| source.forecast_today(&location));
-
+fn response_handler<T>(responses: T) -> Json<ApiResponse>
+where
+    T: Iterator<Item = Result<Vec<WeatherData>, ApiError>>,
+{
     let (data, errors) = partition_data(responses);
 
     let average_data = compute_average_data(data);
@@ -79,36 +78,22 @@ fn forecast_today(location: String, sources: State<DataSources>) -> Json<ApiResp
     Json(ApiResponse::new(status, average_data, errors))
 }
 
+#[get("/forecast/today/<location>")]
+fn forecast_today(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
+    let responses = sources.iter().map(|source| source.forecast_today(&location));
+    response_handler(responses)
+}
+
 #[get("/forecast/tomorrow/<location>")]
 fn forecast_tomorrow(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
     let responses = sources.iter().map(|source| source.forecast_tomorrow(&location));
-
-    let (data, errors) = partition_data(responses);
-
-    let average_data = compute_average_data(data);
-
-    let status = match average_data.len() == 0 {
-        true => Status::Fail,
-        false => Status::Success,
-    };
-
-    Json(ApiResponse::new(status, average_data, errors))
+    response_handler(responses)
 }
 
 #[get("/forecast/five-days/<location>")]
 fn forecast_5_days(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
     let responses = sources.iter().map(|source| source.forecast_5_days(&location));
-
-    let (data, errors) = partition_data(responses);
-
-    let average_data = compute_average_data(data);
-
-    let status = match average_data.len() == 0 {
-        true => Status::Fail,
-        false => Status::Success,
-    };
-
-    Json(ApiResponse::new(status, average_data, errors))
+    response_handler(responses)
 }
 
 #[get("/")]
