@@ -21,7 +21,8 @@ impl DataSource for WeatherBit {
     fn forecast_n_days(
         &self,
         location: &str,
-        days: u32
+        days: u32,
+        skip_days: u32
     ) -> Result<Vec<WeatherData>, ApiError> {
         let url = format!(
             "https://api.weatherbit.io/v2.0/forecast/daily?city={}&days={}&key={}",
@@ -48,6 +49,7 @@ impl DataSource for WeatherBit {
 
         Ok(raw_data
             .iter()
+            .skip(skip_days as usize)
             .map(|day| WeatherData::new(day.temp))
             .collect::<Vec<_>>())
     }

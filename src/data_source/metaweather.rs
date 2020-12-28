@@ -16,7 +16,8 @@ impl DataSource for MetaWeather {
     fn forecast_n_days(
         &self,
         location: &str,
-        days: u32
+        days: u32,
+        skip_days: u32
     ) -> Result<Vec<WeatherData>, ApiError> {
         let source = "MetaWeather";
 
@@ -52,6 +53,7 @@ impl DataSource for MetaWeather {
         Ok(raw_data
             .iter()
             .take(days as usize)
+            .skip(skip_days as usize)
             .map(|day| WeatherData::new(day.the_temp))
             .collect::<Vec<_>>())
     }
