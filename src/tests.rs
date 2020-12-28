@@ -68,6 +68,13 @@ fn test_average_data() {
 }
 
 #[test]
+fn test_average_data_empty() {
+    let data = vec![];
+
+    assert_eq!(compute_average_data(data), vec![]);
+}
+
+#[test]
 fn test_index() {
     let client = Client::new(rocket()).unwrap();
     let mut response = client.get("/").dispatch();
