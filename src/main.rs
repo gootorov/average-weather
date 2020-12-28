@@ -42,23 +42,19 @@ where
 fn compute_average_data(data: Vec<Vec<WeatherData>>) -> Vec<WeatherData> {
     // sum up data from multiple sources.
     let n_sources = data.len();
-    let summed_data = data
+    let mut average_data = data
         .into_iter()
-        .fold1(|summed, next_source_data| {
-            summed.into_iter()
+        .fold1(|mut summed, next_source_data| {
+            summed.iter_mut()
                 .zip(next_source_data.into_iter())
-                .map(|(current, next)| current + next)
-                .collect()
-        });
+                .for_each(|(current, next)| *current += next);
 
-    let average_data = summed_data
-        .map(|data| {
-            data.into_iter()
-                .map(|day| day / n_sources as f64)
-                .collect()
-        });
+            summed
+        })
+        .unwrap_or_default();
 
-    average_data.unwrap_or_default()
+    average_data.iter_mut().for_each(|day| *day /= n_sources as f64);
+    average_data
 }
 
 fn response_handler<T>(responses: T) -> Json<ApiResponse>

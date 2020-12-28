@@ -21,11 +21,23 @@ impl std::ops::Add for WeatherData {
     }
 }
 
+impl std::ops::AddAssign for WeatherData {
+    fn add_assign(&mut self, other: Self) {
+        self.temperature += other.temperature;
+    }
+}
+
 impl std::ops::Div<f64> for WeatherData {
     type Output = Self;
     fn div(self, other: f64) -> Self {
         Self {
             temperature: self.temperature / other,
         }
+    }
+}
+
+impl std::ops::DivAssign<f64> for WeatherData {
+    fn div_assign(&mut self, other: f64) {
+        self.temperature /= other;
     }
 }
