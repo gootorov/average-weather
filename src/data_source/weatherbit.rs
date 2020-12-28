@@ -4,6 +4,7 @@ use crate::weather_data::WeatherData;
 use serde::Deserialize;
 use std::env;
 
+/// [WeatherBit](https://www.weatherbit.io/api) API
 pub struct WeatherBit {
     api_key: String,
 }
@@ -55,14 +56,11 @@ impl DataSource for WeatherBit {
 // Intermediate types that we use to map WeatherBit's responses to.
 /// Represents API response from
 /// [WeatherBit](https://www.weatherbit.io/api/weather-forecast-16-day)
-/// We need only the data field.
 #[derive(Debug, Deserialize)]
 struct WeatherBitResponse {
     data: Vec<WeatherBitData>,
 }
 
-/// In the data field of WeatherBit's response,
-/// we need only the valid date (for debug purposes) and temperature.
 #[derive(Debug, Deserialize)]
 struct WeatherBitData {
     // keep the date for debug purposes.

@@ -22,9 +22,8 @@ fn get_data_sources() -> DataSources {
     [Box::new(WeatherBit::from_envvar())]
 }
 
-/// Partition a sequence of responses from data sources
-/// into two parts: a vector of responses from each data source
-/// and a vector of failures.
+/// Partition a sequence of responses into two parts:
+/// a vector of successful responses and a vector of failures.
 fn partition_data<T>(responses: T) -> (Vec<Vec<WeatherData>>, Vec<ApiError>)
 where
     T: Iterator<Item = Result<Vec<WeatherData>, ApiError>>,
@@ -38,6 +37,7 @@ where
     (data, errors)
 }
 
+/// Computes the average of the data taken from multiple sources.
 fn compute_average_data(data: Vec<Vec<WeatherData>>) -> Vec<WeatherData> {
     // sum up data from multiple sources.
     let n_sources = data.len();
