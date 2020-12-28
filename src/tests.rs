@@ -2,8 +2,7 @@ use super::rocket;
 use super::INDEX;
 use crate::api_error::{ApiError, ErrorKind};
 use crate::compute_average_data;
-use crate::data_source::weatherbit::WeatherBit;
-use crate::data_source::DataSource;
+use crate::data_source::{DataSource, MetaWeather, WeatherBit};
 use crate::partition_data;
 use crate::weather_data::WeatherData;
 use rocket::http;
@@ -18,6 +17,22 @@ fn test_weatherbit_response_len() {
     let today = wb.forecast_today(&location).unwrap();
     let tomorrow = wb.forecast_tomorrow(&location).unwrap();
     let five_days = wb.forecast_5_days(&location).unwrap();
+
+    assert_eq!(today.len(), 1);
+    assert_eq!(tomorrow.len(), 1);
+    assert_eq!(five_days.len(), 5);
+}
+
+#[test]
+fn test_metaweather_response_len() {
+    let mw = MetaWeather::new();
+
+    let location = "Moscow";
+    // again, making network requests in unit tests is probably bad,
+    // but making a mock suite will be overkill.
+    let today = mw.forecast_today(&location).unwrap();
+    let tomorrow = mw.forecast_tomorrow(&location).unwrap();
+    let five_days = mw.forecast_5_days(&location).unwrap();
 
     assert_eq!(today.len(), 1);
     assert_eq!(tomorrow.len(), 1);

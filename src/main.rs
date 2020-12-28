@@ -9,7 +9,7 @@ mod weather_data;
 
 use api_error::ApiError;
 use api_response::{ApiResponse, Status};
-use data_source::{DataSource, WeatherBit};
+use data_source::{DataSource, MetaWeather, WeatherBit};
 use itertools::{Either, Itertools};
 use rocket::{get, routes, State};
 use rocket_contrib::json::Json;
@@ -17,9 +17,10 @@ use weather_data::WeatherData;
 
 const INDEX: &str = "Hello, World\n";
 
-type DataSources = [Box<dyn DataSource + Send + Sync>; 1];
+type DataSources = [Box<dyn DataSource + Send + Sync>; 2];
 fn get_data_sources() -> DataSources {
-    [Box::new(WeatherBit::from_envvar())]
+    [Box::new(WeatherBit::from_envvar()),
+     Box::new(MetaWeather::new())]
 }
 
 /// Partition a sequence of responses into two parts:
