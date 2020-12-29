@@ -17,10 +17,13 @@ use rocket::response::content::Html;
 use weather_data::WeatherData;
 
 type DataSources = [Box<dyn DataSource + Send + Sync>; 2];
+/// Initializes available data sources.
+/// In case you want to add another data source,
+/// implement the DataSource trait for it and add it to this array.
 fn get_data_sources() -> DataSources {
     [
         Box::new(WeatherBit::from_envvar()),
-        Box::new(MetaWeather::new())
+        Box::new(MetaWeather::new()),
     ]
 }
 
@@ -41,7 +44,6 @@ where
 
 /// Computes the average of the data taken from multiple sources.
 fn compute_average_data(data: Vec<Vec<WeatherData>>) -> Vec<WeatherData> {
-    // sum up data from multiple sources.
     let n_sources = data.len();
     let mut average_data = data
         .into_iter()
