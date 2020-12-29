@@ -3,6 +3,7 @@
 mod api_error;
 mod api_response;
 mod data_source;
+mod constants;
 #[cfg(test)]
 mod tests;
 mod weather_data;
@@ -12,10 +13,9 @@ use api_response::{ApiResponse, Status};
 use data_source::{DataSource, MetaWeather, WeatherBit};
 use itertools::{Either, Itertools};
 use rocket::{get, routes, State};
+use rocket::response::content::Html;
 use rocket_contrib::json::Json;
 use weather_data::WeatherData;
-
-const INDEX: &str = "Hello, World\n";
 
 type DataSources = [Box<dyn DataSource + Send + Sync>; 2];
 fn get_data_sources() -> DataSources {
@@ -94,8 +94,8 @@ fn forecast_5_days(location: String, sources: State<DataSources>) -> Json<ApiRes
 }
 
 #[get("/")]
-fn index() -> &'static str {
-    INDEX
+fn index() -> Html<&'static str> {
+    Html(constants::INDEX)
 }
 
 fn rocket() -> rocket::Rocket {

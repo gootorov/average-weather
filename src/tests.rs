@@ -1,9 +1,8 @@
 use super::rocket;
-use super::INDEX;
 use crate::api_error::{ApiError, ErrorKind};
-use crate::compute_average_data;
+use crate::{compute_average_data, partition_data};
 use crate::data_source::{DataSource, MetaWeather, WeatherBit};
-use crate::partition_data;
+use crate::constants::INDEX;
 use crate::weather_data::WeatherData;
 use rocket::http;
 use rocket::local::Client;
