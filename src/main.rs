@@ -2,25 +2,26 @@
 
 mod api_error;
 mod api_response;
-mod data_source;
 mod constants;
+mod data_source;
 #[cfg(test)]
 mod tests;
 mod weather_data;
 
 use api_error::ApiError;
-use api_response::{ApiResponse, Status};
+use api_response::ApiResponse;
 use data_source::{DataSource, MetaWeather, WeatherBit};
 use itertools::{Either, Itertools};
 use rocket::{get, routes, State};
 use rocket::response::content::Html;
-use rocket_contrib::json::Json;
 use weather_data::WeatherData;
 
 type DataSources = [Box<dyn DataSource + Send + Sync>; 2];
 fn get_data_sources() -> DataSources {
-    [Box::new(WeatherBit::from_envvar()),
-     Box::new(MetaWeather::new())]
+    [
+        Box::new(WeatherBit::from_envvar()),
+        Box::new(MetaWeather::new())
+    ]
 }
 
 /// Partition a sequence of responses into two parts:
@@ -57,7 +58,7 @@ fn compute_average_data(data: Vec<Vec<WeatherData>>) -> Vec<WeatherData> {
     average_data
 }
 
-fn response_handler<T>(responses: T) -> Json<ApiResponse>
+fn response_handler<T>(responses: T) -> ApiResponse
 where
     T: Iterator<Item = Result<Vec<WeatherData>, ApiError>>,
 {
@@ -65,30 +66,23 @@ where
 
     let average_data = compute_average_data(data);
 
-    // not sure if status should just be bool,
-    // it's unlikely that Status::Error will be useful.
-    let status = match average_data.len() == 0 {
-        true => Status::Fail,
-        false => Status::Success,
-    };
-
-    Json(ApiResponse::new(status, average_data, errors))
+    ApiResponse::new(average_data, errors)
 }
 
 #[get("/forecast/today/<location>")]
-fn forecast_today(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
+fn forecast_today(location: String, sources: State<DataSources>) -> ApiResponse {
     let responses = sources.iter().map(|source| source.forecast_today(&location));
     response_handler(responses)
 }
 
 #[get("/forecast/tomorrow/<location>")]
-fn forecast_tomorrow(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
+fn forecast_tomorrow(location: String, sources: State<DataSources>) -> ApiResponse {
     let responses = sources.iter().map(|source| source.forecast_tomorrow(&location));
     response_handler(responses)
 }
 
 #[get("/forecast/five-days/<location>")]
-fn forecast_5_days(location: String, sources: State<DataSources>) -> Json<ApiResponse> {
+fn forecast_5_days(location: String, sources: State<DataSources>) -> ApiResponse {
     let responses = sources.iter().map(|source| source.forecast_5_days(&location));
     response_handler(responses)
 }
