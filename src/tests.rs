@@ -74,6 +74,13 @@ fn test_average_data_empty() {
 }
 
 #[test]
+fn test_average_data_with_empty_responses() {
+    let data = vec![vec![], vec![], vec![]];
+
+    assert_eq!(compute_average_data(data), vec![]);
+}
+
+#[test]
 fn test_response_code_200() {
     let client = Client::new(rocket()).unwrap();
     let response_today = client.get("/forecast/today/Moscow").dispatch();
