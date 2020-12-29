@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+    average_weather:
+        build: .
+        volumes:
+            - .:/usr/src/average_weather
+        ports:
+            - "8000:8000"
+        environment:
+            WEATHERBIT_KEY: make_sure_to_set
