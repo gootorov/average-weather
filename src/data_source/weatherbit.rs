@@ -48,8 +48,6 @@ impl DataSource for WeatherBit {
             Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::InvalidJSON)),
         };
 
-        log::debug!("{:#?}", raw_data);
-
         Ok(raw_data
             .iter()
             .skip(skip_days as usize)
@@ -68,7 +66,5 @@ struct WeatherBitResponse {
 
 #[derive(Debug, Deserialize)]
 struct WeatherBitData {
-    // keep the date for debug purposes.
-    valid_date: String,
     temp: f64,
 }
