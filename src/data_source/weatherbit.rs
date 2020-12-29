@@ -36,6 +36,9 @@ impl DataSource for WeatherBit {
             Ok(response) if response.status().as_u16() == 204 => {
                 return Err(ApiError::new("WeatherBit", ErrorKind::InvalidLocation))
             },
+            Ok(response) if response.status().as_u16() == 403 => {
+                return Err(ApiError::new("WeatherBit", ErrorKind::InvalidApiKey))
+            },
             Ok(response) => response,
             Err(_) => return Err(ApiError::new("WeatherBit", ErrorKind::FailedConnection)),
         };
