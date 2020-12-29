@@ -74,6 +74,28 @@ fn test_average_data_empty() {
 }
 
 #[test]
+fn test_response_code_200() {
+    let client = Client::new(rocket()).unwrap();
+    let response_today = client.get("/forecast/today/Moscow").dispatch();
+    let response_tomorrow = client.get("/forecast/tomorrow/Moscow").dispatch();
+    let response_five_days = client.get("/forecast/five-days/Moscow").dispatch();
+    assert_eq!(response_today.status(), http::Status::Ok);
+    assert_eq!(response_tomorrow.status(), http::Status::Ok);
+    assert_eq!(response_five_days.status(), http::Status::Ok);
+}
+
+#[test]
+fn test_response_code_400() {
+    let client = Client::new(rocket()).unwrap();
+    let response_today = client.get("/forecast/today/citythatdoesntexist").dispatch();
+    let response_tomorrow = client.get("/forecast/tomorrow/citythatdoesntexist").dispatch();
+    let response_five_days = client.get("/forecast/five-days/citythatdoesntexist").dispatch();
+    assert_eq!(response_today.status(), http::Status::BadRequest);
+    assert_eq!(response_tomorrow.status(), http::Status::BadRequest);
+    assert_eq!(response_five_days.status(), http::Status::BadRequest);
+}
+
+#[test]
 fn test_index() {
     let client = Client::new(rocket()).unwrap();
     let mut response = client.get("/").dispatch();
