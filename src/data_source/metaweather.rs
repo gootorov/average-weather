@@ -33,7 +33,7 @@ impl DataSource for MetaWeather {
 
         let location_woeid = match location_response.json::<Vec<MetaWeatherLocation>>() {
             // metaweather returns empty data with code 200 for invalid location.
-            Ok(json) if json.len() == 0 => {
+            Ok(json) if json.is_empty() => {
                 return Err(ApiError::new(source, ErrorKind::InvalidLocation));
             },
             // metwather returns top-level array with one element.
