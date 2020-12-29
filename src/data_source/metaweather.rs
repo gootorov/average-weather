@@ -3,7 +3,7 @@ use crate::data_source::DataSource;
 use crate::weather_data::WeatherData;
 use serde::Deserialize;
 
-/// [MetaWeather](https://openweathermap.org) API
+/// [MetaWeather](https://www.metaweather.com/) API
 pub struct MetaWeather;
 
 impl MetaWeather {
@@ -71,7 +71,7 @@ struct MetaWeatherLocation {
 }
 
 /// Represents API response from
-/// [MetaWeather](https://openweathermap.org)
+/// [MetaWeather](https://www.metaweather.com/)
 #[derive(Debug, Deserialize)]
 struct MetaWeatherResponse {
     consolidated_weather: Vec<MetaWeatherData>,
