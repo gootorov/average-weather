@@ -7,7 +7,7 @@ pub const INDEX: &str = r#"
     </head>
     <body>
         <p>Welcome to average weather!</p>
-        <p>This is a RESTful service that requests weather forecasts from different sources and returns you the averege data</p>
+        <p>This is a RESTful service that requests weather forecasts from different sources and returns you the average data.</p>
         <p>Try the following:</p>
         <p><a href="http://localhost:8000/forecast/today/Moscow">http://localhost:8000/forecast/today/Moscow</a></p>
         <p><a href="http://localhost:8000/forecast/tomorrow/Moscow">http://localhost:8000/forecast/tomorrow/Moscow</a></p>
