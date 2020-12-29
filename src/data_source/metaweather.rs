@@ -27,15 +27,18 @@ impl DataSource for MetaWeather {
         );
 
         let location_response = match reqwest::blocking::get(&location_url) {
-            // metaweather returns empty data with code 200 for invalid location.
             Ok(response) => response,
             Err(_) => return Err(ApiError::new(source, ErrorKind::FailedConnection)),
         };
 
         let location_woeid = match location_response.json::<Vec<MetaWeatherLocation>>() {
+            // metaweather returns empty data with code 200 for invalid location.
+            Ok(json) if json.len() == 0 => {
+                return Err(ApiError::new(source, ErrorKind::InvalidLocation));
+            },
             // metwather returns top-level array with one element.
             Ok(json) => json[0].woeid.to_string(),
-            Err(_) => return Err(ApiError::new(source, ErrorKind::InvalidLocation)),
+            Err(_) => return Err(ApiError::new(source, ErrorKind::InvalidJSON)),
         };
 
         let url = format!("https://www.metaweather.com/api/location/{}/", location_woeid);
