@@ -5,6 +5,8 @@ type Result<T> = std::result::Result<T, ApiError>;
 
 /// This trait describes a weather data source, such as [OpenWeatherMap](https://openweathermap.org)
 /// and [WeatherBit](https://www.weatherbit.io/api).
+/// If you want to add another data source to this application,
+/// implement this trait for it, then make sure you initialize it in crate::get_data_sources().
 pub trait DataSource {
     /// Forecast for the next n days.
     fn forecast_n_days(&self, location: &str, days: u32, skip_days: u32) -> Result<Vec<WeatherData>>;
